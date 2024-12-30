@@ -1,0 +1,15 @@
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Theme transition */
+body,
+.container,
+.monitor-sidebar,
+button,
+input,
+textarea {
+  transition: all 0.3s ease;
+} 

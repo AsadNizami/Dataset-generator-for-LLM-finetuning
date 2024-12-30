@@ -1,0 +1,461 @@
+/* Base Styles */
+body {
+    background-color: #111827;
+    color: #e2e8f0;
+    margin: 0;
+    padding: 0;
+}
+
+.instruct-dataset {
+    padding: 20px;
+    width: 95%;
+    margin: 0 auto;
+    max-width: none;
+}
+
+/* Form Layout */
+.form-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 120px;
+    background-color: #1a202c;
+    border-radius: 8px;
+    border: 1px solid #2d3748;
+}
+
+.form-inputs {
+    display: grid;
+    grid-template-columns: 250px 150px 500px 180px;
+    gap: 120px;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    position: static;
+    transform: none;
+    padding-top: 16px;
+}
+
+/* Form Groups */
+.form-group {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: #a0aec0;
+    font-size: 0.85em;
+}
+
+/* File Upload Styles */
+.file-upload {
+    min-width: 200px;
+}
+
+.file-upload input {
+    width: 100%;
+}
+
+.file-selected {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    padding: 0 12px;
+    height: 42px;
+    width: 100%;
+}
+
+.filename {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #e2e8f0;
+    font-size: 0.9em;
+}
+
+.change-file {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    padding: 0;
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    font-size: 1.2em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.change-file:hover {
+    background-color: #374151;
+    color: #e2e8f0;
+    transform: none;
+}
+
+/* Number Input Styles */
+.pairs-input input {
+    width: 120px;
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    color: #e2e8f0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9em;
+}
+
+.pairs-input input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px #2563eb;
+}
+
+/* Remove default number input arrows */
+.pairs-input input::-webkit-outer-spin-button,
+.pairs-input input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.pairs-input input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Temperature Control Styles */
+.temperature-control {
+    margin: 0;
+}
+
+.temperature-control label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.temperature-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.temperature-value {
+    color: #e2e8f0;
+}
+
+.slider-container {
+    width: 100%;
+    max-width: 400px;
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
+    color: #718096;
+}
+
+/* Model Select Styles */
+.model-select {
+    margin-right: 0;
+}
+
+.model-select select {
+    width: 180px;
+    height: 36px;
+    padding: 8px 12px;
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    color: #e2e8f0;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%23A0AEC0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+}
+
+.model-select select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px #2563eb;
+}
+
+.model-select select:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.model-select select option {
+    background-color: #1f2937;
+    color: #e2e8f0;
+}
+
+/* Button Styles */
+.form-actions button {
+    padding: 0 24px;
+    height: 36px;
+    font-size: 0.9em;
+    min-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+/* Generate Dataset button */
+.form-actions button[type="submit"] {
+    background-color: #3b82f6;
+}
+
+.form-actions button[type="submit"]:hover {
+    background-color: #2563eb;
+}
+
+.form-actions button[type="submit"]:disabled {
+    background-color: #4b5563;
+    cursor: not-allowed;
+}
+
+/* Save button */
+.form-actions .save-button {
+    background-color: #10b981;
+}
+
+.form-actions .save-button:hover {
+    background-color: #059669;
+}
+
+/* Clear All button */
+.form-actions .clear-button {
+    background-color: #ef4444;
+}
+
+.form-actions .clear-button:hover {
+    background-color: #dc2626;
+}
+
+/* Remove transform on hover for all buttons */
+.form-actions button:hover {
+    transform: none;
+}
+
+/* Utility buttons (like delete and change file) */
+.utility-button {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    padding: 0;
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    font-size: 1.2em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+/* Apply utility button styles to delete and change file buttons */
+.delete-row,
+.change-file {
+    composes: utility-button;
+}
+
+/* Generated Pairs Table */
+.generated-pairs {
+    margin-top: 20px;
+    border: 1px solid #2d3748;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #1a202c;
+    color: #e2e8f0;
+    max-height: calc(100vh - 250px);
+    display: flex;
+    flex-direction: column;
+}
+
+.dataset-header {
+    display: grid;
+    grid-template-columns: 60px minmax(800px, 1fr) 250px;
+    border-bottom: 1px solid #2d3748;
+    background-color: #2d3748;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.header-cell {
+    padding: 12px 16px;
+    font-weight: 600;
+    color: #a0aec0;
+    font-size: 0.9em;
+    text-transform: lowercase;
+}
+
+.header-cell.number {
+    text-align: center;
+}
+
+.pairs-list {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #4a5568 #2d3748;
+}
+
+/* Scrollbar Styles */
+.pairs-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.pairs-list::-webkit-scrollbar-track {
+    background: #2d3748;
+}
+
+.pairs-list::-webkit-scrollbar-thumb {
+    background-color: #4a5568;
+    border-radius: 4px;
+}
+
+.pairs-list::-webkit-scrollbar-thumb:hover {
+    background-color: #718096;
+}
+
+/* Dataset Row Styles */
+.dataset-row {
+    display: grid;
+    grid-template-columns: 60px minmax(800px, 1fr) 250px;
+    border-bottom: 1px solid #2d3748;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.dataset-row:hover {
+    background-color: #2d3748;
+}
+
+.dataset-row:last-child {
+    border-bottom: none;
+}
+
+.cell {
+    padding: 16px;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.cell.number {
+    color: #718096;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #2d3748;
+}
+
+.cell.conversations {
+    border-right: 1px solid #2d3748;
+    overflow: hidden;
+}
+
+.cell.conversations pre {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #e2e8f0;
+}
+
+/* Expanded row styles */
+.dataset-row.expanded {
+    background-color: #1f2937;
+}
+
+.dataset-row.expanded .cell.conversations pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 1.2em;
+    line-height: 1.6;
+}
+
+.dataset-row.expanded .cell {
+    padding: 24px 16px;
+}
+
+.cell.source {
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 8px;
+}
+
+/* Error Message */
+.error-message {
+    color: #ef4444;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 4px;
+}
+
+/* Delete row button */
+.delete-row {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    padding: 0;
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    font-size: 1.2em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+    opacity: 0;  /* Hidden by default */
+}
+
+.dataset-row:hover .delete-row {
+    opacity: 1;  /* Show on row hover */
+}
+
+.delete-row:hover {
+    background-color: #dc2626;
+    color: #fff;
+    transform: none;
+} 

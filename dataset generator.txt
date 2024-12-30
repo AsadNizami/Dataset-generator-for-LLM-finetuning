@@ -1,0 +1,23 @@
+Project - Synthetic dataset generator for llm finetuning
+
+1) Task- use any file(pdf, txt, ppt, docx, etc) and prepare a high quality synthetic instruction dataset using it to fine-tune llms.
+
+2) Features:
+	i) Should be able to generate is different formats like Alpaca etc.
+	iii) Users should have option to choose the llm to generate the dataset.
+	iv) It should have unit tests at each stage.
+	v) Users can give the system prompt for Q/A generation.
+	vi) The ui should display the dataset being generated during the runtime.
+	vii) User should be able to monitor hardware usage like disk-read/write, gpu memory and usage, cpu, ram usage.
+	viii) General statistics for the quality of data generated should be displayed.
+	ix) 
+
+3) Tech stack:
+	i) ollama for generating the dataset.
+	ii) react or whatever for the frontend.
+	iii) fast api or something better for the backend.
+	
+4) Algorithm of running:
+	i) User passes the file path, llm info for generation and dataset format.
+	ii) Using ollama and a given llm, the program should generate Question/Answer pair and save it in a json file. Path to the output directory should be given.
+
