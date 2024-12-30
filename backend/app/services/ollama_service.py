@@ -83,7 +83,8 @@ class OllamaService:
         content: str,
         num_pairs: int = 5,
         temperature: float = 0.7,
-        model: str = "llama3.2"
+        model: str = "llama3.2",
+        prompt: str = None
     ) -> List[Dict[str, str]]:
         """Generate Q&A pairs dataset from content."""
         if not await self.check_model_availability(model):
@@ -92,42 +93,86 @@ class OllamaService:
                 detail=f"Model '{model}' is not available. Please run 'ollama pull {model}' first."
             )
 
+        invalid_responses = 0
+        total_attempts = 0
+
+        # Update default prompt
+        default_prompt = """Analyze the given text and create exactly one question-answer pair.
+
+You must:
+1. Return only a JSON array containing one object
+2. Use exactly this format, no extra text:
+[
+    {
+        "question": "Clear, specific question from the text?",
+        "answer": "Direct, factual answer from the text."
+    }
+]
+
+Important:
+- Keep answers concise and factual
+- Questions should be specific and answerable from the text
+- Do not add any explanations or additional text
+- Do not create multiple pairs
+- Ensure valid JSON syntax with double quotes"""
+        
+        instruction = prompt if prompt else default_prompt
+
         # Generate one pair at a time
         for i in range(num_pairs):
-            prompt = f"""Generate a single question-answer pair from the following text.
-            Return your response in this exact format, with no additional text:
-            [
-                {{"question":"Your question here?","answer":"Your answer here."}}
-            ]
-
-            Text to process:
-            {content}"""
-
-            try:
-                response = await self.generate_response(
-                    model=model,
-                    prompt=prompt,
-                    temperature=temperature
-                )
+            max_attempts = 3  # Maximum attempts per pair
+            attempts = 0
+            
+            while attempts < max_attempts:
+                total_attempts += 1
+                attempts += 1
                 
-                response_text = response.get('response', '')
-                if not response_text:
-                    continue
+                full_prompt = f"""{instruction}
 
-                # Clean and parse the response
-                cleaned_text = response_text.strip().replace('\n', '').replace('    ', '')
+                Text to process:
+                {content}"""
+
                 try:
-                    pairs = json.loads(cleaned_text)
-                    if isinstance(pairs, list) and len(pairs) > 0:
-                        pair = pairs[0]
-                        if isinstance(pair, dict) and 'question' in pair and 'answer' in pair:
-                            yield {
-                                "question": str(pair['question']).strip(),
-                                "answer": str(pair['answer']).strip()
-                            }
-                except json.JSONDecodeError:
-                    continue
-                
-            except Exception as e:
-                print(f"Error generating pair {i+1}: {str(e)}")
-                continue
+                    response = await self.generate_response(
+                        model=model,
+                        prompt=full_prompt,
+                        temperature=temperature
+                    )
+                    
+                    response_text = response.get('response', '')
+                    if not response_text:
+                        continue
+
+                    # Clean and parse the response
+                    cleaned_text = response_text.strip().replace('\n', '').replace('    ', '')
+                    try:
+                        pairs = json.loads(cleaned_text)
+                        if isinstance(pairs, list) and len(pairs) > 0:
+                            pair = pairs[0]
+                            if isinstance(pair, dict) and 'question' in pair and 'answer' in pair:
+                                print(f"✓ Generated valid pair {i+1}/{num_pairs}")
+                                yield {
+                                    "question": str(pair['question']).strip(),
+                                    "answer": str(pair['answer']).strip()
+                                }
+                                break  # Success, move to next pair
+                        else:
+                            print(f"✗ Invalid response format: {cleaned_text}...")
+                            invalid_responses += 1
+                    except json.JSONDecodeError:
+                        print(f"✗ JSON parse error: {cleaned_text[:100]}...")
+                        invalid_responses += 1
+                        
+                except Exception as e:
+                    print(f"✗ Error generating pair: {str(e)}")
+                    invalid_responses += 1
+
+                if attempts == max_attempts:
+                    print(f"! Max attempts reached for pair {i+1}")
+                    invalid_responses += 1
+
+        print("\n=== Generation Statistics ===")
+        print(f"Total attempts: {total_attempts}")
+        print(f"Invalid responses: {invalid_responses}")
+        print(f"Success rate: {((total_attempts - invalid_responses) / total_attempts * 100):.1f}%")
+        print("=========================\n")

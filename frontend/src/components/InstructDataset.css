@@ -8,7 +8,7 @@ body {
 
 .instruct-dataset {
     padding: 20px;
-    width: 95%;
+    width: 98%;
     margin: 0 auto;
     max-width: none;
 }
@@ -22,14 +22,48 @@ body {
     background-color: #1a202c;
     border-radius: 8px;
     border: 1px solid #2d3748;
+    margin-bottom: 24px;
+    width: 80%;
+    margin: 0 auto 24px auto;
+    overflow: hidden;
 }
 
+/* Add new container for prompt and conversations */
+.content-container {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    gap: 32px;
+    padding: 24px 120px;
+    width: 90%;
+    margin: 0 auto;
+    margin-left: -55px;
+}
+
+/* Update form inputs to handle top controls */
 .form-inputs {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    gap: 80px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Top row with controls */
+.form-top-row {
     display: grid;
     grid-template-columns: 250px 150px 500px 180px;
     gap: 120px;
     align-items: center;
     justify-content: center;
+}
+
+/* Bottom row with prompt and conversations */
+.form-bottom-row {
+    display: grid;
+    grid-template-columns: 30% 70%;  /* 30% for prompt, 70% for conversations */
+    gap: 32px;
+    align-items: start;
 }
 
 .form-actions {
@@ -54,12 +88,12 @@ body {
     flex-direction: column;
     gap: 12px;
     color: #a0aec0;
-    font-size: 0.85em;
+    font-size: 0.95em;
 }
 
 /* File Upload Styles */
 .file-upload {
-    min-width: 200px;
+    width: 200px;
 }
 
 .file-upload input {
@@ -111,6 +145,10 @@ body {
 }
 
 /* Number Input Styles */
+.pairs-input {
+    width: 150px;
+}
+
 .pairs-input input {
     width: 120px;
     background-color: #1f2937;
@@ -140,7 +178,7 @@ body {
 
 /* Temperature Control Styles */
 .temperature-control {
-    margin: 0;
+    width: 400px;
 }
 
 .temperature-control label {
@@ -153,6 +191,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 0.95em;
 }
 
 .temperature-value {
@@ -177,7 +216,7 @@ body {
 
 /* Model Select Styles */
 .model-select {
-    margin-right: 0;
+    width: 180px;
 }
 
 .model-select select {
@@ -292,32 +331,34 @@ body {
 
 /* Generated Pairs Table */
 .generated-pairs {
-    margin-top: 20px;
+    margin-top: 0;
     border: 1px solid #2d3748;
     border-radius: 8px;
     overflow: hidden;
     background-color: #1a202c;
     color: #e2e8f0;
-    max-height: calc(100vh - 250px);
+    height: 550px;  /* Fixed height */
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .dataset-header {
     display: grid;
-    grid-template-columns: 60px minmax(800px, 1fr) 250px;
+    grid-template-columns: 60px 1fr 200px;
     border-bottom: 1px solid #2d3748;
     background-color: #2d3748;
     position: sticky;
     top: 0;
     z-index: 1;
+    height: 40px;  /* Fixed header height */
 }
 
 .header-cell {
     padding: 12px 16px;
     font-weight: 600;
     color: #a0aec0;
-    font-size: 0.9em;
+    font-size: 1em;
     text-transform: lowercase;
 }
 
@@ -328,7 +369,8 @@ body {
 .pairs-list {
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    overflow-y: auto;  /* Enable vertical scrolling */
+    height: calc(100% - 40px);  /* Subtract header height */
     scrollbar-width: thin;
     scrollbar-color: #4a5568 #2d3748;
 }
@@ -354,7 +396,7 @@ body {
 /* Dataset Row Styles */
 .dataset-row {
     display: grid;
-    grid-template-columns: 60px minmax(800px, 1fr) 250px;
+    grid-template-columns: 60px 1fr 200px;
     border-bottom: 1px solid #2d3748;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -387,14 +429,15 @@ body {
 .cell.conversations {
     border-right: 1px solid #2d3748;
     overflow: hidden;
+    word-break: break-word;
 }
 
 .cell.conversations pre {
     margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
     color: #e2e8f0;
+    max-width: 100%;
 }
 
 /* Expanded row styles */
@@ -458,4 +501,66 @@ body {
     background-color: #dc2626;
     color: #fff;
     transform: none;
+}
+
+/* Prompt Input Styles */
+.prompt-input {
+    grid-column: auto;  /* Reset the grid-column */
+    margin-top: 0;      /* Reset margin */
+    margin-right: 20px;
+    margin-left: -20px;
+}
+
+.prompt-input textarea {
+    width: 100%;
+    min-height: 450px;
+    padding: 12px;
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    color: #e2e8f0;
+    border-radius: 6px;
+    font-size: 1em;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    resize: vertical;
+    scrollbar-width: thin;
+    scrollbar-color: #4a5568 #2d3748;  /* Firefox */
+}
+
+/* Webkit scrollbar styles for prompt textarea */
+.prompt-input textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.prompt-input textarea::-webkit-scrollbar-track {
+    background: #2d3748;
+}
+
+.prompt-input textarea::-webkit-scrollbar-thumb {
+    background-color: #4a5568;
+    border-radius: 4px;
+}
+
+.prompt-input textarea::-webkit-scrollbar-thumb:hover {
+    background-color: #718096;
+}
+
+.prompt-input textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px #2563eb;
+}
+
+/* Prompt input label */
+.prompt-input label {
+    font-size: 0.95em;
+}
+
+/* Model select label */
+.model-select label {
+    font-size: 0.95em;
+}
+
+/* Temperature label */
+.temperature-label {
+    font-size: 0.95em;
 } 

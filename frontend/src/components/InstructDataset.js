@@ -11,6 +11,24 @@ function InstructDataset() {
     const [expandedRows, setExpandedRows] = useState(new Set());
     const [models, setModels] = useState([]);
     const [selectedModel, setSelectedModel] = useState('');
+    const [prompt, setPrompt] = useState(`Analyze the given text and create exactly one question-answer pair.
+
+You must:
+1. Return only a JSON array containing one object
+2. Use exactly this format, no extra text:
+[
+    {
+        "question": "Clear, specific question from the text?",
+        "answer": "Direct, factual answer from the text."
+    }
+]
+
+Important:
+- Keep answers concise and factual
+- Questions should be specific and answerable from the text
+- Do not add any explanations or additional text
+- Do not create multiple pairs
+- Ensure valid JSON syntax with double quotes`);
 
     useEffect(() => {
         const fetchModels = async () => {
@@ -47,6 +65,10 @@ function InstructDataset() {
         setSelectedModel(event.target.value);
     };
 
+    const handlePromptChange = (event) => {
+        setPrompt(event.target.value);
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!file) {
@@ -63,6 +85,7 @@ function InstructDataset() {
             formData.append('num_pairs', numPairs);
             formData.append('temperature', temperature);
             formData.append('model', selectedModel);
+            formData.append('prompt', prompt);
 
             const response = await fetch('http://localhost:8000/api/generate-dataset', {
                 method: 'POST',
@@ -238,13 +261,18 @@ function InstructDataset() {
                 </div>
             </form>
 
-            {error && (
-                <div className="error-message">
-                    Error: {error}
+            <div className="content-container">
+                <div className="form-group prompt-input">
+                    <label>
+                        Instruction Prompt:
+                        <textarea
+                            value={prompt}
+                            onChange={handlePromptChange}
+                            placeholder="Enter your instruction prompt..."
+                            rows={4}
+                        />
+                    </label>
                 </div>
-            )}
-
-            {generatedPairs && generatedPairs.length > 0 && (
                 <div className="generated-pairs">
                     <div className="dataset-header">
                         <div className="header-cell number">#</div>
@@ -275,6 +303,12 @@ function InstructDataset() {
                             </div>
                         ))}
                     </div>
+                </div>
+            </div>
+
+            {error && (
+                <div className="error-message">
+                    Error: {error}
                 </div>
             )}
         </div>

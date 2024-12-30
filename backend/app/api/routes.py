@@ -44,7 +44,8 @@ async def generate_dataset(
     file: UploadFile = File(...),
     num_pairs: int = Form(default=5),
     temperature: float = Form(default=0.7),
-    model: str = Form(...)
+    model: str = Form(...),
+    prompt: str = Form(...)
 ) -> StreamingResponse:
     """Generate Q&A dataset from uploaded file content."""
     try:
@@ -81,7 +82,8 @@ async def generate_dataset(
                     content=text_content,
                     num_pairs=num_pairs,
                     temperature=temperature,
-                    model=model
+                    model=model,
+                    prompt=prompt
                 ):
                     data = {
                         "conversations": [
