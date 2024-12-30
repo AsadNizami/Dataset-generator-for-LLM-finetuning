@@ -503,7 +503,6 @@ body {
     transform: none;
 }
 
-/* Prompt Input Styles */
 .prompt-input {
     grid-column: auto;  /* Reset the grid-column */
     margin-top: 0;      /* Reset margin */

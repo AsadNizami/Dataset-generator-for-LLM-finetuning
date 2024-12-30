@@ -160,7 +160,7 @@ Important:
                             print(f"✗ Invalid response format: {cleaned_text}...")
                             invalid_responses += 1
                     except json.JSONDecodeError:
-                        print(f"✗ JSON parse error: {cleaned_text[:100]}...")
+                        print(f"✗ JSON parse error: {cleaned_text}...")
                         invalid_responses += 1
                         
                 except Exception as e:
