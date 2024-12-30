@@ -174,3 +174,6 @@ Generated datasets are saved in JSON format:
     "source": "filename.txt"
 }
 ```
+
+## Demo
+![image](https://github.com/user-attachments/assets/9cf6bbfe-0db9-447e-b7f0-204bc6e16c61)
