@@ -115,7 +115,7 @@ Important:
                     Text to process:
                     {content}"""
             
-            max_attempts = 3  
+            max_attempts = 3
             attempts = 0
             print('\n\n\n', f'{full_prompt=}', '\n\n\n')
             while attempts < max_attempts:
