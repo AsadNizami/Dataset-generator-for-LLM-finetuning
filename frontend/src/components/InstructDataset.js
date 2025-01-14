@@ -54,7 +54,7 @@ Important:
     };
 
     const handleNumPairsChange = (event) => {
-        setNumPairs(parseInt(event.target.value) || 5);
+        setNumPairs(parseInt(event.target.value) || 0);
     };
 
     const handleTemperatureChange = (event) => {
@@ -171,7 +171,7 @@ Important:
                                 {!file ? (
                                     <input
                                         type="file"
-                                        accept=".txt"
+                                        accept=".txt,.pdf"
                                         onChange={handleFileChange}
                                     />
                                 ) : (
@@ -193,7 +193,7 @@ Important:
                                 Number of Pairs:
                                 <input
                                     type="number"
-                                    min="1"
+                                    min="0"
                                     value={numPairs}
                                     onChange={handleNumPairsChange}
                                 />

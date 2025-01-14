@@ -4,6 +4,7 @@ from ..services.ollama_service import OllamaService
 from fastapi.responses import StreamingResponse
 import json
 import asyncio
+import fitz
 
 router = APIRouter()
 ollama_service = OllamaService()
@@ -11,13 +12,8 @@ ollama_service = OllamaService()
 @router.get("/models")
 async def get_models() -> Dict[str, Any]:
     """Get available models endpoint."""
-    try:
-        models = await ollama_service.get_models()
-        return {"models": models}
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get models: {str(e)}")
+    models = await ollama_service.get_models()
+    return {"models": models}
 
 @router.post("/generate")
 async def generate_response(request: Dict[str, Any]) -> Dict[str, Any]:
@@ -26,23 +22,19 @@ async def generate_response(request: Dict[str, Any]) -> Dict[str, Any]:
     if not all(field in request for field in required_fields):
         raise HTTPException(status_code=400, detail="Missing required fields")
 
-    try:
-        response = await ollama_service.generate_response(
-            model=request['model'],
-            prompt=request['prompt'],
-            system_prompt=request.get('system_prompt'),
-            temperature=request.get('temperature', 0.7)
-        )
-        return response
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+    response = await ollama_service.generate_response(
+        model=request['model'],
+        prompt=request['prompt'],
+        system_prompt=request.get('system_prompt'),
+        temperature=request.get('temperature', 0.7)
+    )
+
+    return response
 
 @router.post("/generate-dataset")
 async def generate_dataset(
     file: UploadFile = File(...),
-    num_pairs: int = Form(default=5),
+    num_pairs: int = Form(default=0),
     temperature: float = Form(default=0.7),
     model: str = Form(...),
     prompt: str = Form(...)
@@ -50,19 +42,27 @@ async def generate_dataset(
     """Generate Q&A dataset from uploaded file content."""
     try:
         content = await file.read()
-        if len(content) > 1_000_000:  # 1MB limit
+        if len(content) > 5_000_000: 
             raise HTTPException(
                 status_code=400,
-                detail="File too large. Maximum size is 1MB"
+                detail="File too large. Maximum size is 5MB"
             )
 
-        try:
-            text_content = content.decode('utf-8')
-        except UnicodeDecodeError:
-            raise HTTPException(
-                status_code=400,
-                detail="File must be a valid text file with UTF-8 encoding"
-            )
+        if file.filename.endswith('.pdf'):
+            # Extract text from PDF
+            pdf_document = fitz.open(stream=content, filetype="pdf")
+            text_content = ""
+            for page in pdf_document:
+                text_content += page.get_text()
+            pdf_document.close()
+        else:
+            try:
+                text_content = content.decode('utf-8')
+            except UnicodeDecodeError:
+                raise HTTPException(
+                    status_code=400,
+                    detail="File must be a valid text file with UTF-8 encoding"
+                )
 
         if not text_content.strip():
             raise HTTPException(
@@ -77,6 +77,11 @@ async def generate_dataset(
             )
 
         async def generate():
+            # If num_pairs is zero, yield an empty response
+            if num_pairs == 0:
+                yield json.dumps({"conversations": [], "source": file.filename}) + "\n"
+                return
+
             try:
                 async for pair in ollama_service.generate_dataset(
                     content=text_content,

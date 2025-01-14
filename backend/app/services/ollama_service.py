@@ -8,42 +8,32 @@ class OllamaService:
         self.base_url = base_url
         self.client = httpx.AsyncClient(timeout=30.0)
         self.MODEL_NAME = "llama3.2:latest"
+        self.history = []
         print(f"OllamaService initialized with base_url: {base_url}")  # Debug log
 
     async def check_model_availability(self, model_name: str) -> bool:
         """Check if specified model is available."""
-        try:
-            models = await self.get_models()
-            print(f"Available models: {models}")  # Debug log
-            is_available = any(model['name'] == model_name for model in models)
-            print(f"Is {model_name} available? {is_available}")  # Debug log
-            return is_available
-        except Exception as e:
-            print(f"Error checking model availability: {str(e)}")  # Debug log
-            return False
+        models = await self.get_models()
+        print(f"Available models: {models}")  # Debug log
+        is_available = any(model['name'] == model_name for model in models)
+        print(f"Is {model_name} available? {is_available}")  # Debug log
+        return is_available
 
     async def get_models(self) -> list:
         """Get available models from Ollama."""
-        try:
-            print("Attempting to get models from Ollama...")  # Debug log
-            response = await self.client.get(f"{self.base_url}/api/tags")
-            print(f"Response status: {response.status_code}")  # Debug log
-            print(f"Response content: {response.text}")  # Debug log
-            
-            models = response.json().get('models', [])
-            processed_models = [
-                {'name': model['name'], 'modified_at': model.get('modified_at')}
-                for model in models
-                if 'name' in model
-            ]
-            print(f"Processed models: {processed_models}")  # Debug log
-            return processed_models
-        except Exception as e:
-            print(f"Error getting models: {str(e)}")  # Debug log
-            raise HTTPException(
-                status_code=503,
-                detail=f"Ollama service unavailable: {str(e)}"
-            )
+        print("Attempting to get models from Ollama...")  # Debug log
+        response = await self.client.get(f"{self.base_url}/api/tags")
+        print(f"Response status: {response.status_code}")  # Debug log
+        print(f"Response content: {response.text}")  # Debug log
+        
+        models = response.json().get('models', [])
+        processed_models = [
+            {'name': model['name'], 'modified_at': model.get('modified_at')}
+            for model in models
+            if 'name' in model
+        ]
+        print(f"Processed models: {processed_models}")  # Debug log
+        return processed_models
 
     async def generate_response(
         self,
@@ -115,56 +105,49 @@ Important:
 - Do not add any explanations or additional text
 - Do not create multiple pairs
 - Ensure valid JSON syntax with double quotes"""
-        
-        instruction = prompt if prompt else default_prompt
 
-        # Generate one pair at a time
         for i in range(num_pairs):
-            max_attempts = 3  # Maximum attempts per pair
-            attempts = 0
+            instruction = prompt if prompt else default_prompt
+            full_prompt = f"""{instruction}
+                    \n
+                    The question similar to this list:
+                    {self.history}\n
+                    Text to process:
+                    {content}"""
             
+            max_attempts = 3  
+            attempts = 0
+            print('\n\n\n', f'{full_prompt=}', '\n\n\n')
             while attempts < max_attempts:
                 total_attempts += 1
                 attempts += 1
                 
-                full_prompt = f"""{instruction}
+                response = await self.generate_response(
+                    model=model,
+                    prompt=full_prompt,
+                    temperature=temperature
+                )
+                print(f'{self.history=}')
+                response_text = response.get('response', '')
+                if not response_text:
+                    continue
 
-                Text to process:
-                {content}"""
-
+                # Clean and parse the response
+                cleaned_text = response_text.strip().replace('\n', '').replace('    ', '')
                 try:
-                    response = await self.generate_response(
-                        model=model,
-                        prompt=full_prompt,
-                        temperature=temperature
-                    )
-                    
-                    response_text = response.get('response', '')
-                    if not response_text:
-                        continue
-
-                    # Clean and parse the response
-                    cleaned_text = response_text.strip().replace('\n', '').replace('    ', '')
-                    try:
-                        pairs = json.loads(cleaned_text)
-                        if isinstance(pairs, list) and len(pairs) > 0:
-                            pair = pairs[0]
-                            if isinstance(pair, dict) and 'question' in pair and 'answer' in pair:
-                                print(f"✓ Generated valid pair {i+1}/{num_pairs}")
-                                yield {
-                                    "question": str(pair['question']).strip(),
-                                    "answer": str(pair['answer']).strip()
-                                }
-                                break  # Success, move to next pair
-                        else:
-                            print(f"✗ Invalid response format: {cleaned_text}...")
-                            invalid_responses += 1
-                    except json.JSONDecodeError:
-                        print(f"✗ JSON parse error: {cleaned_text}...")
-                        invalid_responses += 1
-                        
-                except Exception as e:
-                    print(f"✗ Error generating pair: {str(e)}")
+                    pairs = json.loads(cleaned_text)
+                    pair = pairs[0]
+                    if isinstance(pair, dict) and 'question' in pair and 'answer' in pair:
+                        print(f"✓ Generated valid pair {i+1}/{num_pairs}")
+                        self.history.append(str(pair['question']).strip())
+                        # print('*'*100, 'hello world', '*'*100)
+                        yield {
+                            "question": str(pair['question']).strip(),
+                            "answer": str(pair['answer']).strip()
+                        }
+                        break  # Success, move to next pair
+                except json.JSONDecodeError:
+                    print(f"✗ JSON parse error: {cleaned_text}...")
                     invalid_responses += 1
 
                 if attempts == max_attempts:
