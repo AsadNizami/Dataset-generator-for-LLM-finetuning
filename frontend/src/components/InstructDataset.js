@@ -11,6 +11,7 @@ function InstructDataset() {
     const [expandedRows, setExpandedRows] = useState(new Set());
     const [models, setModels] = useState([]);
     const [selectedModel, setSelectedModel] = useState('');
+    const [summary_prompt, setSummaryPrompt] = useState(`Summary`);
     const [prompt, setPrompt] = useState(`Analyze the given text and create exactly one question-answer pair.
 
 You must:
@@ -69,6 +70,10 @@ Important:
         setPrompt(event.target.value);
     };
 
+    const handleSummaryPromptChange = (event) => {
+        setSummaryPrompt(event.target.value);
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!file) {
@@ -86,6 +91,7 @@ Important:
             formData.append('temperature', temperature);
             formData.append('model', selectedModel);
             formData.append('prompt', prompt);
+            formData.append('keywordprompt', summary_prompt);
 
             const response = await fetch('http://localhost:8000/api/generate-dataset', {
                 method: 'POST',
@@ -262,17 +268,33 @@ Important:
             </form>
 
             <div className="content-container">
-                <div className="form-group prompt-input">
-                    <label>
-                        Instruction Prompt:
-                        <textarea
-                            value={prompt}
-                            onChange={handlePromptChange}
-                            placeholder="Enter your instruction prompt..."
-                            rows={4}
-                        />
-                    </label>
+                <div className='container-right'>
+                    <div className="form-group prompt-input">
+                        <label>
+                            Instruction Prompt:
+                            <textarea
+                                value={prompt}
+                                onChange={handlePromptChange}
+                                placeholder="Enter your instruction prompt..."
+                                rows={4}
+                            />
+                        </label>
+                    </div>
+
+                    <div className="form-group prompt-input-keyword">
+                        <label>
+                            Keywords:
+                            <textarea
+                                value={summary_prompt}
+                                onChange={handleSummaryPromptChange}
+                                placeholder="Keywords to focus on specific part of the document"
+                                rows={2}
+                            />
+                        </label>
+                    </div>
                 </div>
+                
+                
                 <div className="generated-pairs">
                     <div className="dataset-header">
                         <div className="header-cell number">#</div>

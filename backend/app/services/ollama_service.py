@@ -2,6 +2,8 @@ from typing import Dict, Optional, Any, List
 import httpx
 from fastapi import HTTPException
 import json
+from .rag import query_rag
+
 
 class OllamaService:
     def __init__(self, base_url: str = "http://localhost:11434"):
@@ -14,7 +16,6 @@ class OllamaService:
     async def check_model_availability(self, model_name: str) -> bool:
         """Check if specified model is available."""
         models = await self.get_models()
-        print(f"Available models: {models}")  # Debug log
         is_available = any(model['name'] == model_name for model in models)
         print(f"Is {model_name} available? {is_available}")  # Debug log
         return is_available
@@ -23,8 +24,8 @@ class OllamaService:
         """Get available models from Ollama."""
         print("Attempting to get models from Ollama...")  # Debug log
         response = await self.client.get(f"{self.base_url}/api/tags")
-        print(f"Response status: {response.status_code}")  # Debug log
-        print(f"Response content: {response.text}")  # Debug log
+        # print(f"Response status: {response.status_code}")
+        # print(f"Response content: {response.text}") 
         
         models = response.json().get('models', [])
         processed_models = [
@@ -32,7 +33,7 @@ class OllamaService:
             for model in models
             if 'name' in model
         ]
-        print(f"Processed models: {processed_models}")  # Debug log
+        # print(f"Processed models: {processed_models}")
         return processed_models
 
     async def generate_response(
@@ -40,7 +41,7 @@ class OllamaService:
         model: str,
         prompt: str,
         system_prompt: Optional[str] = None,
-        temperature: float = 0.7
+        temperature: float = 0.7,
     ) -> Dict[str, Any]:
         """Generate a response from the specified model."""
         payload = {
@@ -70,11 +71,11 @@ class OllamaService:
 
     async def generate_dataset(
         self,
-        content: str,
         num_pairs: int = 5,
         temperature: float = 0.7,
         model: str = "llama3.2",
-        prompt: str = None
+        prompt: str = None,
+        keywordprompt: str= None
     ) -> List[Dict[str, str]]:
         """Generate Q&A pairs dataset from content."""
         if not await self.check_model_availability(model):
@@ -107,12 +108,16 @@ Important:
 - Ensure valid JSON syntax with double quotes"""
 
         for i in range(num_pairs):
+            print(keywordprompt)
+
+            content = query_rag(f'Return some text which are contextually complete. Use the keyword: {keywordprompt}', model=model)
+            print('response', content, '\n\n')
             instruction = prompt if prompt else default_prompt
             full_prompt = f"""{instruction}
                     \n
-                    The question similar to this list:
+                    Do not repeat question similar in this list:
                     {self.history}\n
-                    Text to process:
+                    Content:
                     {content}"""
             
             max_attempts = 3
@@ -127,7 +132,7 @@ Important:
                     prompt=full_prompt,
                     temperature=temperature
                 )
-                print(f'{self.history=}')
+                # print(f'{self.history=}')
                 response_text = response.get('response', '')
                 if not response_text:
                     continue
@@ -140,12 +145,11 @@ Important:
                     if isinstance(pair, dict) and 'question' in pair and 'answer' in pair:
                         print(f"✓ Generated valid pair {i+1}/{num_pairs}")
                         self.history.append(str(pair['question']).strip())
-                        # print('*'*100, 'hello world', '*'*100)
                         yield {
                             "question": str(pair['question']).strip(),
                             "answer": str(pair['answer']).strip()
                         }
-                        break  # Success, move to next pair
+                        break  
                 except json.JSONDecodeError:
                     print(f"✗ JSON parse error: {cleaned_text}...")
                     invalid_responses += 1

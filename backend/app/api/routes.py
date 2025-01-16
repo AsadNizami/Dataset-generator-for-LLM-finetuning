@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from typing import Dict, Any
 from ..services.ollama_service import OllamaService
+from ..services.rag import query_rag, load_documents, split_documents, add_to_chroma
 from fastapi.responses import StreamingResponse
 import json
-import asyncio
-import fitz
+import os
 
 router = APIRouter()
 ollama_service = OllamaService()
@@ -37,9 +37,12 @@ async def generate_dataset(
     num_pairs: int = Form(default=0),
     temperature: float = Form(default=0.7),
     model: str = Form(...),
-    prompt: str = Form(...)
+    prompt: str = Form(...),
+    keywordprompt: str = Form(...)
 ) -> StreamingResponse:
     """Generate Q&A dataset from uploaded file content."""
+    print(f'{num_pairs=}, {keywordprompt=}')
+    
     try:
         content = await file.read()
         if len(content) > 5_000_000: 
@@ -47,28 +50,19 @@ async def generate_dataset(
                 status_code=400,
                 detail="File too large. Maximum size is 5MB"
             )
+        os.makedirs("temp", exist_ok=True) 
 
-        if file.filename.endswith('.pdf'):
-            # Extract text from PDF
-            pdf_document = fitz.open(stream=content, filetype="pdf")
-            text_content = ""
-            for page in pdf_document:
-                text_content += page.get_text()
-            pdf_document.close()
-        else:
-            try:
-                text_content = content.decode('utf-8')
-            except UnicodeDecodeError:
-                raise HTTPException(
-                    status_code=400,
-                    detail="File must be a valid text file with UTF-8 encoding"
-                )
+        file_location = f"./temp/{file.filename}"  # Specify your desired path
+        with open(file_location, "wb") as f:
+            f.write(content)
 
-        if not text_content.strip():
-            raise HTTPException(
-                status_code=400,
-                detail="File content is empty"
-            )
+        print(f"File saved to: {file_location}")
+
+        loader = load_documents('./temp')
+        chunks = split_documents(loader)
+        add_to_chroma(chunks, model)
+        os.remove(file_location)
+
 
         if not 0 <= temperature <= 1:
             raise HTTPException(
@@ -84,11 +78,11 @@ async def generate_dataset(
 
             try:
                 async for pair in ollama_service.generate_dataset(
-                    content=text_content,
                     num_pairs=num_pairs,
                     temperature=temperature,
                     model=model,
-                    prompt=prompt
+                    prompt=prompt,
+                    keywordprompt=keywordprompt
                 ):
                     data = {
                         "conversations": [
@@ -110,4 +104,4 @@ async def generate_dataset(
         raise HTTPException(
             status_code=500,
             detail=f"Dataset generation failed: {str(e)}"
-        ) 
+        )

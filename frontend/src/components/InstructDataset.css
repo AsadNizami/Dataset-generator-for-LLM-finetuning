@@ -509,10 +509,29 @@ body {
     margin-right: 20px;
     margin-left: -20px;
 }
-
+.prompt-input-keyword {
+    grid-column: auto; 
+    margin-top: 0; 
+    margin-right: 20px;
+    margin-left: -20px;
+}
 .prompt-input textarea {
     width: 100%;
-    min-height: 450px;
+    min-height: 350px;
+    padding: 12px;
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    color: #e2e8f0;
+    border-radius: 6px;
+    font-size: 1em;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    resize: vertical;
+    scrollbar-width: thin;
+    scrollbar-color: #4a5568 #2d3748;  /* Firefox */
+}
+.prompt-input-keyword textarea {
+    width: 100%;
+    min-height: 60px;
     padding: 12px;
     background-color: #1f2937;
     border: 1px solid #374151;
@@ -563,3 +582,4 @@ body {
 .temperature-label {
     font-size: 0.95em;
 } 
+
